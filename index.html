@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AlexGuitar — Electric Guitar Lessons Online</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Spectral:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- BACKGROUND GUITAR -->
+  <div class="bg-guitar" aria-hidden="true">
+    <img src="background.png" alt="" draggable="false" />
+  </div>
+
+  <!-- NAVBAR -->
+  <nav class="navbar" id="navbar">
+    <a href="#hero" class="logo">AlexGuitar</a>
+    <ul class="nav-links">
+      <li><a href="#about">About</a></li>
+      <li><a href="#lessons">Lessons</a></li>
+      <li><a href="#pricing">Pricing</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+    <button class="hamburger" id="hamburger" aria-label="Open menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero" id="hero">
+    <div class="hero-noise"></div>
+    <div class="hero-content">
+      <h1 class="hero-title">Find your<br/>sound.</h1>
+      <div class="hero-rule"></div>
+      <p class="hero-context">Electric guitar lessons, one-on-one, online.</p>
+      <p class="hero-sub">Six years of playing metal and rock. Now teaching what I know.</p>
+      <div class="hero-actions">
+        <a href="#contact" class="btn btn-primary">Write to me</a>
+        <a href="#about" class="btn btn-ghost">About Alex</a>
+      </div>
+    </div>
+    <div class="hero-scroll-hint">
+      <span>Scroll</span>
+      <div class="scroll-line"></div>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section class="about" id="about">
+    <div class="container">
+      <div class="about-grid">
+        <div class="about-image-wrap fade-up">
+          <!-- Replace with Alex's actual photo -->
+          <img
+            src="https://images.unsplash.com/photo-1510915361894-db8b60106cb1?auto=format&fit=crop&w=800&q=80"
+            alt="A guitarist performing on stage, lit from below by warm amber light"
+            class="about-image"
+            loading="lazy"
+          />
+        </div>
+        <div class="about-text fade-up">
+          <p class="section-label">About</p>
+          <h2 class="section-title">A guitarist first.<br/>A teacher second.</h2>
+          <p>I've been playing electric guitar for six years — performing with bands, writing music, obsessing over tone, making mistakes, starting over. My roots are in metal and rock, but what I've learned applies everywhere, because most of what matters about the instrument isn't genre-specific.</p>
+          <p>I teach online because geography shouldn't limit who gets good instruction. If you're serious about learning, I want to work with you — wherever you are, whatever level, whatever music you care about.</p>
+          <a href="#contact" class="btn btn-ghost about-cta">Write to me</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LESSONS -->
+  <section class="lessons" id="lessons">
+    <div class="container">
+      <div class="lessons-intro fade-up">
+        <p class="section-label">The Journey</p>
+        <h2 class="section-title">Where are you now?</h2>
+      </div>
+      <div class="lessons-list">
+        <div class="lesson-stage fade-up">
+          <div class="stage-number" aria-hidden="true">01</div>
+          <div class="stage-content">
+            <h3>Starting out</h3>
+            <p>You've never touched an electric guitar, or you have, and it didn't go anywhere. We begin at the beginning — how to hold the instrument, how to make it sound like something, how to enjoy the process without faking it. The goal isn't to get you through a syllabus. It's to make you want to pick it up again tomorrow.</p>
+          </div>
+        </div>
+        <div class="lesson-stage fade-up">
+          <div class="stage-number" aria-hidden="true">02</div>
+          <div class="stage-content">
+            <h3>Breaking through</h3>
+            <p>You know some chords. You can play a few riffs. And then somewhere around there, you stopped improving. This is the most common place people get stuck, and the most interesting place to teach. We work on what's actually holding you back — usually not technique, usually not talent. Usually a missing piece of theory, or a habit that formed too early.</p>
+          </div>
+        </div>
+        <div class="lesson-stage fade-up">
+          <div class="stage-number" aria-hidden="true">03</div>
+          <div class="stage-content">
+            <h3>Going deep</h3>
+            <p>You already play. What you want now is to play better — to understand why certain things work, to develop your own tone and voice, to go into territory you haven't been able to reach alone. Sweep picking, odd time signatures, improvisation, composition. We go as far as you want to go.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICING -->
+  <section class="pricing" id="pricing">
+    <div class="container">
+      <div class="section-header fade-up">
+        <p class="section-label">Pricing</p>
+        <h2 class="section-title">Two ways to begin</h2>
+      </div>
+      <div class="pricing-grid">
+        <div class="pricing-card fade-up">
+          <div class="pricing-top">
+            <h3>Single Lesson</h3>
+            <div class="price"><span class="currency">₪</span>100</div>
+          </div>
+          <p class="pricing-prose">One 60-minute session. Good if you want to start before committing, or if your schedule makes regularity difficult. You bring your questions and your guitar. I bring the rest.</p>
+          <a href="#contact" class="btn btn-ghost">Book a session</a>
+        </div>
+        <div class="pricing-card pricing-card--featured fade-up">
+          <div class="pricing-top">
+            <h3>Monthly Pack</h3>
+            <div class="price"><span class="currency">₪</span>360 <span class="price-per">/ month</span></div>
+          </div>
+          <p class="pricing-prose">Four lessons a month, with WhatsApp access between sessions for questions. This is the pace at which things actually change. Consistent practice, consistent feedback, someone tracking where you've been and where you're going. Saves ₪40 versus individual sessions.</p>
+          <a href="#contact" class="btn btn-primary">Get started</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section class="contact" id="contact">
+    <div class="container">
+      <div class="contact-header fade-up">
+        <p class="section-label">Contact</p>
+        <h2 class="section-title">Say hello.</h2>
+        <p class="section-desc">Tell me where you are with the guitar and what you're looking for. I'll write back.</p>
+      </div>
+      <form class="contact-form" id="contact-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="name">Name</label>
+            <input type="text" id="name" name="name" placeholder="Your name" required />
+          </div>
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" placeholder="your@email.com" required />
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="level">Where you are</label>
+          <select id="level" name="level">
+            <option value="">Select your level</option>
+            <option value="beginner">Starting out — never really played</option>
+            <option value="intermediate">Breaking through — know some basics</option>
+            <option value="advanced">Going deep — want to push further</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="message">What you're looking for</label>
+          <textarea id="message" name="message" rows="5" placeholder="What music matters to you? What are you working toward?"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary btn-full">Send</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <p class="footer-line">AlexGuitar <span aria-hidden="true">·</span> <span class="footer-copy">© 2026</span></p>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
