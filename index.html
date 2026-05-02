@@ -7,14 +7,605 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Spectral:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+  <style>
+    /* ── Reset ─────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    img  { display: block; max-width: 100%; }
+    a    { text-decoration: none; color: inherit; }
+
+    /* ── Tokens ────────────────────────────── */
+    :root {
+      --bg:       oklch(12% 0.008 65);
+      --bg-2:     oklch(15% 0.010 65);
+      --bg-card:  oklch(17% 0.012 65);
+      --amber:    oklch(68% 0.12 75);
+      --amber-lt: oklch(78% 0.10 75);
+      --cream:    oklch(91% 0.015 75);
+      --muted:    oklch(62% 0.012 70);
+      --success:  oklch(45% 0.08 145);
+      --border:   oklch(68% 0.12 75 / 15%);
+      --font-display: 'Bebas Neue', sans-serif;
+      --font-body:    'Spectral', Georgia, serif;
+      --max-w:    1100px;
+      --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--cream);
+      font-family: var(--font-body);
+      font-size: 17px;
+      line-height: 1.75;
+      overflow-x: hidden;
+    }
+
+    /* ── Reusable ───────────────────────────── */
+    .container {
+      max-width: var(--max-w);
+      margin: 0 auto;
+      padding: 0 40px;
+    }
+    .section-label {
+      font-family: var(--font-body);
+      font-size: 0.7rem;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--amber);
+      margin-bottom: 16px;
+    }
+    .section-title {
+      font-family: var(--font-display);
+      font-size: clamp(2.5rem, 5vw, 4rem);
+      line-height: 0.95;
+      color: var(--cream);
+      letter-spacing: 0.02em;
+    }
+    .section-desc {
+      font-family: var(--font-body);
+      color: var(--muted);
+      font-size: 1rem;
+      max-width: 480px;
+      margin-top: 20px;
+      line-height: 1.8;
+    }
+    .section-header { margin-bottom: 72px; }
+
+    /* ── Buttons ────────────────────────────── */
+    .btn {
+      display: inline-block;
+      padding: 13px 30px;
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      font-weight: 400;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      cursor: pointer;
+      border: none;
+      transition: background 0.22s var(--ease-out), color 0.22s, border-color 0.22s;
+    }
+    .btn-primary { background: var(--amber); color: var(--bg); }
+    .btn-primary:hover { background: var(--amber-lt); }
+    .btn-ghost { background: transparent; color: var(--cream); border: 1px solid oklch(91% 0.015 75 / 28%); }
+    .btn-ghost:hover { border-color: var(--amber); color: var(--amber-lt); }
+    .btn-full { width: 100%; text-align: center; }
+
+    /* ── Navbar ─────────────────────────────── */
+    .navbar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 24px 40px;
+      transition: background 0.4s var(--ease-out), padding 0.4s, border-color 0.4s;
+      border-bottom: 1px solid transparent;
+    }
+    .navbar.scrolled {
+      background: oklch(12% 0.008 65 / 94%);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      padding: 16px 40px;
+      border-bottom-color: var(--border);
+    }
+    .logo {
+      font-family: var(--font-display);
+      font-size: 1.45rem;
+      letter-spacing: 0.04em;
+      color: var(--cream);
+    }
+    .nav-links {
+      list-style: none;
+      display: flex;
+      align-items: center;
+      gap: 40px;
+    }
+    .nav-links a {
+      font-family: var(--font-body);
+      font-size: 0.78rem;
+      font-weight: 400;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--cream); }
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px;
+    }
+    .hamburger span {
+      display: block;
+      width: 22px;
+      height: 1px;
+      background: var(--cream);
+      transition: all 0.3s var(--ease-out);
+    }
+
+    /* ── Video hero — sticky scroll section ─── */
+    #scroll-container { height: 500vh; }
+
+    #sticky-scene {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      width: 100vw;
+      overflow: hidden;
+    }
+
+    #frame-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .vignette {
+      position: absolute;
+      inset: 0;
+      background: oklch(38% 0.08 55 / 0.16);
+      pointer-events: none;
+    }
+    .vignette-dark {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at center, transparent 28%, oklch(10% 0.010 55 / 0.62) 100%),
+        linear-gradient(to bottom,
+          oklch(12% 0.008 65 / 0.55) 0%,
+          transparent 22%,
+          transparent 72%,
+          oklch(12% 0.008 65 / 0.85) 100%);
+      pointer-events: none;
+    }
+
+    /* ── Hero content (sits on video) ──────── */
+    #hero-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: flex-end;
+      padding-bottom: 120px;
+      z-index: 10;
+      pointer-events: none;
+    }
+    #hero-overlay .hero-content {
+      max-width: var(--max-w);
+      width: 100%;
+      margin: 0 auto;
+      padding: 0 40px;
+      pointer-events: auto;
+    }
+    .hero-title {
+      font-family: var(--font-display);
+      font-size: clamp(4rem, 12vw, 10rem);
+      line-height: 0.88;
+      letter-spacing: 0.02em;
+      color: var(--cream);
+      margin-bottom: 36px;
+      text-shadow: 0 4px 40px oklch(12% 0.008 65 / 0.7);
+    }
+    .hero-rule {
+      width: 48px;
+      height: 1px;
+      background: var(--amber);
+      margin-bottom: 28px;
+      opacity: 0.7;
+    }
+    .hero-context {
+      font-family: var(--font-body);
+      font-size: 0.8rem;
+      font-weight: 400;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--amber);
+      margin-bottom: 12px;
+    }
+    .hero-sub {
+      font-family: var(--font-body);
+      font-size: 1.05rem;
+      font-weight: 300;
+      font-style: italic;
+      color: var(--muted);
+      max-width: 460px;
+      line-height: 1.8;
+      margin-bottom: 52px;
+    }
+    .hero-actions { display: flex; gap: 14px; flex-wrap: wrap; }
+
+    /* ── Scroll-phase text labels ───────────── */
+    .scene-label {
+      position: absolute;
+      left: 48px;
+      bottom: 80px;
+      font-family: var(--font-display);
+      font-size: clamp(2.2rem, 5vw, 4rem);
+      letter-spacing: 0.12em;
+      color: var(--cream);
+      line-height: 1;
+      opacity: 0;
+      transform: translateY(12px);
+      pointer-events: none;
+      text-shadow: 0 2px 28px oklch(12% 0.008 65 / 0.95);
+      z-index: 10;
+    }
+    .scene-sub {
+      position: absolute;
+      left: 52px;
+      bottom: 60px;
+      font-family: var(--font-body);
+      font-style: italic;
+      font-weight: 300;
+      font-size: clamp(0.72rem, 1.2vw, 0.88rem);
+      letter-spacing: 0.06em;
+      color: var(--amber);
+      opacity: 0;
+      pointer-events: none;
+      text-shadow: 0 1px 12px oklch(12% 0.008 65 / 0.8);
+      z-index: 10;
+    }
+
+    /* ── Progress line + bg-load bar ──────── */
+    #progress-line {
+      position: absolute;
+      top: 0; right: 0;
+      width: 2px;
+      height: 0%;
+      background: linear-gradient(
+        to bottom,
+        oklch(68% 0.12 75 / 0),
+        oklch(68% 0.12 75),
+        oklch(68% 0.12 75 / 0)
+      );
+      pointer-events: none;
+      opacity: 0.55;
+    }
+    #bg-load-bar {
+      position: absolute;
+      bottom: 0; left: 0;
+      height: 2px;
+      width: 0%;
+      background: oklch(68% 0.12 75 / 0.5);
+      pointer-events: none;
+      transition: opacity 0.8s ease;
+    }
+    #bg-load-bar.done { opacity: 0; }
+
+    /* ── Scroll hint ─────────────────────── */
+    .hero-scroll-hint {
+      position: absolute;
+      bottom: 44px;
+      right: 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      color: var(--muted);
+      font-family: var(--font-body);
+      font-size: 9px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      opacity: 0.6;
+      transition: opacity 0.5s ease;
+      z-index: 10;
+    }
+    .hero-scroll-hint.hidden { opacity: 0; }
+    .scroll-line {
+      width: 1px;
+      height: 44px;
+      background: linear-gradient(to bottom, var(--amber), transparent);
+      animation: scrollPulse 2.4s var(--ease-out) infinite;
+    }
+    @keyframes scrollPulse {
+      0%, 100% { opacity: 0.3; transform: scaleY(1); }
+      50%       { opacity: 0.9; transform: scaleY(1.08); }
+    }
+
+    /* ── About ──────────────────────────── */
+    .about {
+      padding: 140px 0;
+      border-top: 1px solid var(--border);
+    }
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.3fr;
+      gap: 96px;
+      align-items: start;
+    }
+    .about-image {
+      width: 100%;
+      aspect-ratio: 4/5;
+      object-fit: cover;
+      object-position: center top;
+      display: block;
+      mask-image: linear-gradient(to bottom, black 65%, transparent 100%);
+      -webkit-mask-image: linear-gradient(to bottom, black 65%, transparent 100%);
+    }
+    .about-text { padding-top: 8px; }
+    .about-text .section-title { margin-bottom: 32px; }
+    .about-text p {
+      font-weight: 300;
+      color: var(--muted);
+      margin-bottom: 20px;
+      max-width: 52ch;
+      line-height: 1.85;
+    }
+    .about-cta { margin-top: 16px; }
+
+    /* ── Lessons ────────────────────────── */
+    .lessons {
+      padding: 140px 0;
+      background: var(--bg-2);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .lessons-intro { margin-bottom: 80px; }
+    .lesson-stage {
+      display: grid;
+      grid-template-columns: 160px 1fr;
+      gap: 48px;
+      align-items: start;
+      padding: 56px 0;
+      border-top: 1px solid var(--border);
+      transition: border-color 0.3s;
+    }
+    .lesson-stage:last-child { border-bottom: 1px solid var(--border); }
+    .lesson-stage:hover { border-top-color: oklch(68% 0.12 75 / 35%); }
+    .stage-number {
+      font-family: var(--font-display);
+      font-size: clamp(3.5rem, 7vw, 6rem);
+      line-height: 1;
+      letter-spacing: 0.02em;
+      color: var(--amber);
+      opacity: 0.55;
+      transition: opacity 0.3s;
+      padding-top: 4px;
+    }
+    .lesson-stage:hover .stage-number { opacity: 0.9; }
+    .stage-content h3 {
+      font-family: var(--font-display);
+      font-size: clamp(1.8rem, 3vw, 2.6rem);
+      letter-spacing: 0.03em;
+      color: var(--cream);
+      margin-bottom: 16px;
+      line-height: 1;
+    }
+    .stage-content p {
+      font-weight: 300;
+      color: var(--muted);
+      font-size: 0.97rem;
+      line-height: 1.85;
+      max-width: 58ch;
+    }
+
+    /* ── Pricing ────────────────────────── */
+    .pricing { padding: 140px 0; }
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1px;
+      max-width: 800px;
+      background: var(--border);
+      border: 1px solid var(--border);
+    }
+    .pricing-card {
+      background: var(--bg);
+      padding: 56px 48px;
+      display: flex;
+      flex-direction: column;
+    }
+    .pricing-card--featured { background: var(--bg-card); }
+    .pricing-top {
+      margin-bottom: 28px;
+      padding-bottom: 28px;
+      border-bottom: 1px solid var(--border);
+    }
+    .pricing-top h3 {
+      font-family: var(--font-body);
+      font-size: 0.75rem;
+      font-weight: 500;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 16px;
+    }
+    .price {
+      font-family: var(--font-display);
+      font-size: clamp(3rem, 5vw, 4.5rem);
+      line-height: 1;
+      letter-spacing: 0.02em;
+      color: var(--cream);
+      display: flex;
+      align-items: flex-start;
+      gap: 2px;
+    }
+    .price .currency {
+      font-family: var(--font-body);
+      font-size: 1.2rem;
+      font-weight: 300;
+      color: var(--amber);
+      margin-top: 8px;
+    }
+    .price-per {
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      font-weight: 300;
+      color: var(--muted);
+      align-self: flex-end;
+      padding-bottom: 6px;
+    }
+    .pricing-prose {
+      font-weight: 300;
+      font-size: 0.92rem;
+      color: var(--muted);
+      line-height: 1.85;
+      flex: 1;
+      margin-bottom: 40px;
+    }
+
+    /* ── Contact ────────────────────────── */
+    .contact {
+      padding: 140px 0;
+      background: var(--bg-2);
+      border-top: 1px solid var(--border);
+    }
+    .contact-header { margin-bottom: 64px; max-width: 520px; }
+    .contact-form {
+      max-width: 600px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+    .form-group { display: flex; flex-direction: column; gap: 10px; }
+    .form-group label {
+      font-family: var(--font-body);
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--cream);
+      font-family: var(--font-body);
+      font-size: 0.95rem;
+      font-weight: 300;
+      padding: 14px 18px;
+      outline: none;
+      transition: border-color 0.22s;
+      width: 100%;
+      resize: vertical;
+      border-radius: 0;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+    .form-group select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23c8922a' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 16px center;
+      padding-right: 44px;
+      cursor: pointer;
+    }
+    .form-group input::placeholder,
+    .form-group textarea::placeholder { color: oklch(62% 0.012 70 / 55%); }
+    .form-group select option { background: var(--bg-card); }
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus { border-color: oklch(68% 0.12 75 / 60%); }
+
+    /* ── Footer ─────────────────────────── */
+    .footer { padding: 40px 0; border-top: 1px solid var(--border); }
+    .footer-line {
+      font-family: var(--font-body);
+      font-size: 0.78rem;
+      letter-spacing: 0.1em;
+      color: oklch(62% 0.012 70 / 45%);
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    /* ── Scroll reveal ──────────────────── */
+    .fade-up {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.75s var(--ease-out), transform 0.75s var(--ease-out);
+    }
+    .fade-up.is-visible { opacity: 1; transform: translateY(0); }
+    .lesson-stage:nth-child(2) { transition-delay: 0.08s; }
+    .lesson-stage:nth-child(3) { transition-delay: 0.16s; }
+
+    /* ── Hamburger → X ──────────────────── */
+    .navbar.menu-open .hamburger span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+    .navbar.menu-open .hamburger span:nth-child(2) { opacity: 0; }
+    .navbar.menu-open .hamburger span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+
+    /* ── Form success ───────────────────── */
+    .btn-success { background: var(--success) !important; color: var(--cream) !important; }
+
+    /* ── Responsive ─────────────────────── */
+    @media (max-width: 900px) {
+      .about-grid { grid-template-columns: 1fr; gap: 56px; }
+      .about-image { aspect-ratio: 16/9; max-height: 400px; }
+      .lesson-stage { grid-template-columns: 80px 1fr; gap: 28px; }
+      .pricing-grid { grid-template-columns: 1fr; max-width: 480px; }
+    }
+
+    @media (max-width: 768px) {
+      .container { padding: 0 24px; }
+      .navbar { padding: 18px 24px; }
+      .navbar.scrolled { padding: 14px 24px; }
+      .nav-links {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: oklch(12% 0.008 65 / 98%);
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 40px;
+        z-index: 199;
+      }
+      .nav-links.open { display: flex; }
+      .nav-links a { font-size: 1rem; color: var(--cream); }
+      .hamburger { display: flex; z-index: 201; }
+      #hero-overlay { padding-bottom: 80px; }
+      #hero-overlay .hero-content { padding: 0 24px; }
+      .hero-scroll-hint { display: none; }
+      .about, .lessons, .pricing, .contact { padding: 96px 0; }
+      .lessons-intro { margin-bottom: 48px; }
+      .lesson-stage { grid-template-columns: 1fr; gap: 12px; padding: 40px 0; }
+      .stage-number { font-size: 2.2rem; opacity: 0.45; }
+      .pricing-card { padding: 40px 28px; }
+      .form-row { grid-template-columns: 1fr; }
+      .contact-header { margin-bottom: 48px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .fade-up { opacity: 1; transform: none; transition: none; }
+      .scroll-line { animation: none; opacity: 0.5; }
+    }
+  </style>
 </head>
 <body>
-
-  <!-- BACKGROUND GUITAR -->
-  <div class="bg-guitar" aria-hidden="true">
-    <img src="background.png" alt="" draggable="false" />
-  </div>
 
   <!-- NAVBAR -->
   <nav class="navbar" id="navbar">
@@ -30,31 +621,49 @@
     </button>
   </nav>
 
-  <!-- HERO -->
-  <section class="hero" id="hero">
-    <div class="hero-noise"></div>
-    <div class="hero-content">
-      <h1 class="hero-title">Find your<br/>sound.</h1>
-      <div class="hero-rule"></div>
-      <p class="hero-context">Electric guitar lessons, one-on-one, online.</p>
-      <p class="hero-sub">Six years of playing metal and rock. Now teaching what I know.</p>
-      <div class="hero-actions">
-        <a href="#contact" class="btn btn-primary">Write to me</a>
-        <a href="#about" class="btn btn-ghost">About Alex</a>
+  <!-- VIDEO HERO — sticky scroll section -->
+  <div id="scroll-container">
+    <div id="sticky-scene" id="hero">
+      <canvas id="frame-canvas"></canvas>
+      <div class="vignette"></div>
+      <div class="vignette-dark"></div>
+      <div id="progress-line"></div>
+      <div id="bg-load-bar"></div>
+
+      <!-- Hero text sits over the video -->
+      <div id="hero-overlay">
+        <div class="hero-content">
+          <h1 class="hero-title">Find your<br/>sound.</h1>
+          <div class="hero-rule"></div>
+          <p class="hero-context">Electric guitar lessons, one-on-one, online.</p>
+          <p class="hero-sub">Six years of playing metal and rock. Now teaching what I know.</p>
+          <div class="hero-actions">
+            <a href="#contact" class="btn btn-primary">Write to me</a>
+            <a href="#about" class="btn btn-ghost">About Alex</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Phase labels that appear mid-scroll -->
+      <span class="scene-label" id="lbl-1">The Guitar.</span>
+      <span class="scene-sub"   id="sub-1">Six strings. One voice.</span>
+      <span class="scene-label" id="lbl-2">The Sound.</span>
+      <span class="scene-sub"   id="sub-2">Metal. Rock. Yours.</span>
+      <span class="scene-label" id="lbl-3">Find Yours.</span>
+      <span class="scene-sub"   id="sub-3">Write to Alex and begin.</span>
+
+      <div class="hero-scroll-hint" id="scroll-hint">
+        <span>Scroll</span>
+        <div class="scroll-line"></div>
       </div>
     </div>
-    <div class="hero-scroll-hint">
-      <span>Scroll</span>
-      <div class="scroll-line"></div>
-    </div>
-  </section>
+  </div>
 
   <!-- ABOUT -->
   <section class="about" id="about">
     <div class="container">
       <div class="about-grid">
         <div class="about-image-wrap fade-up">
-          <!-- Replace with Alex's actual photo -->
           <img
             src="https://images.unsplash.com/photo-1510915361894-db8b60106cb1?auto=format&fit=crop&w=800&q=80"
             alt="A guitarist performing on stage, lit from below by warm amber light"
@@ -178,6 +787,222 @@
     </div>
   </footer>
 
-  <script src="script.js"></script>
+  <script>
+    gsap.registerPlugin(ScrollTrigger);
+
+    // ── Video frame extraction ────────────────
+    const MAX_FRAMES = 160;
+    const MAX_WIDTH  = 1920;
+
+    const canvas     = document.getElementById('frame-canvas');
+    const ctx        = canvas.getContext('2d');
+    const progLine   = document.getElementById('progress-line');
+    const scrollHint = document.getElementById('scroll-hint');
+    const bgLoadBar  = document.getElementById('bg-load-bar');
+
+    function drawCover(bmp) {
+      const cw = canvas.width, ch = canvas.height;
+      const ir = bmp.width / bmp.height;
+      const cr = cw / ch;
+      let sx, sy, sw, sh;
+      if (ir > cr) {
+        sh = bmp.height; sw = sh * cr;
+        sx = (bmp.width - sw) / 2; sy = 0;
+      } else {
+        sw = bmp.width; sh = sw / cr;
+        sy = (bmp.height - sh) / 2; sx = 0;
+      }
+      ctx.drawImage(bmp, sx, sy, sw, sh, 0, 0, cw, ch);
+    }
+
+    function nearestFrame(frames, idx) {
+      if (frames[idx]) return frames[idx];
+      for (let d = 1; d < frames.length; d++) {
+        if (idx - d >= 0 && frames[idx - d]) return frames[idx - d];
+        if (idx + d < frames.length && frames[idx + d]) return frames[idx + d];
+      }
+      return null;
+    }
+
+    (async () => {
+      const vid = document.createElement('video');
+      vid.src         = 'guitar2.mp4';
+      vid.muted       = true;
+      vid.preload     = 'auto';
+      vid.playsInline = true;
+      vid.style.cssText = 'position:fixed;opacity:0;pointer-events:none;width:1px;height:1px';
+      document.body.appendChild(vid);
+
+      await new Promise((res, rej) => {
+        vid.addEventListener('loadedmetadata', res, { once: true });
+        vid.addEventListener('error', rej, { once: true });
+      });
+
+      const dur   = vid.duration;
+      const vw    = vid.videoWidth  || 1280;
+      const vh    = vid.videoHeight || 720;
+      const scale = Math.min(1, MAX_WIDTH / vw);
+      const count = Math.min(MAX_FRAMES, Math.ceil(dur * 24));
+
+      const off    = document.createElement('canvas');
+      off.width    = Math.round(vw * scale);
+      off.height   = Math.round(vh * scale);
+      const offCtx = off.getContext('2d');
+      const frames = new Array(count).fill(null);
+
+      // Size canvas and show frame 0 immediately
+      canvas.width  = window.innerWidth;
+      canvas.height = window.innerHeight;
+      vid.currentTime = 0;
+      await new Promise(r => vid.addEventListener('seeked', r, { once: true }));
+      offCtx.drawImage(vid, 0, 0, off.width, off.height);
+      frames[0] = await createImageBitmap(off);
+      drawCover(frames[0]);
+
+      // Scroll is live from this point
+      let lastIdx = 0;
+      let ticking = false;
+
+      // Scroll progress is mapped only within the 500vh video section
+      const scrollContainer = document.getElementById('scroll-container');
+
+      function getProgress() {
+        const rect = scrollContainer.getBoundingClientRect();
+        const scrolled = -rect.top;
+        const total    = rect.height - window.innerHeight;
+        return Math.max(0, Math.min(1, scrolled / total));
+      }
+
+      function onFrame() {
+        const progress = getProgress();
+        const idx = Math.round(progress * (count - 1));
+        const bmp = nearestFrame(frames, idx);
+        if (bmp && idx !== lastIdx) {
+          lastIdx = idx;
+          drawCover(bmp);
+        }
+        progLine.style.height = (progress * 100) + '%';
+        scrollHint.classList.toggle('hidden', progress > 0.05);
+        ticking = false;
+      }
+
+      window.addEventListener('scroll', () => {
+        if (!ticking) { requestAnimationFrame(onFrame); ticking = true; }
+      }, { passive: true });
+
+      window.addEventListener('resize', () => {
+        canvas.width  = window.innerWidth;
+        canvas.height = window.innerHeight;
+        const bmp = frames[lastIdx] || frames[0];
+        if (bmp) drawCover(bmp);
+      });
+
+      // GSAP: hero content fades out, phase labels fade in/out
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: '#scroll-container',
+          start: 'top top',
+          end:   'bottom bottom',
+          scrub: 1,
+        }
+      });
+
+      // Hero content fades out first 10%
+      tl.to('#hero-overlay', { opacity: 0, duration: 0.10, ease: 'power1.in' }, 0)
+
+      // Label 1: 14%–38%
+        .to('#lbl-1', { opacity: 1, y: 0, duration: 0.06, ease: 'power2.out' }, 0.14)
+        .to('#sub-1', { opacity: 1,       duration: 0.05                     }, 0.16)
+        .to('#lbl-1', { opacity: 0, y: -8, duration: 0.05, ease: 'power2.in' }, 0.36)
+        .to('#sub-1', { opacity: 0,       duration: 0.04                     }, 0.36)
+
+      // Label 2: 48%–68%
+        .to('#lbl-2', { opacity: 1, y: 0, duration: 0.06, ease: 'power2.out' }, 0.48)
+        .to('#sub-2', { opacity: 1,       duration: 0.05                     }, 0.50)
+        .to('#lbl-2', { opacity: 0, y: -8, duration: 0.05, ease: 'power2.in' }, 0.66)
+        .to('#sub-2', { opacity: 0,       duration: 0.04                     }, 0.66)
+
+      // Label 3: 82%–end
+        .to('#lbl-3', { opacity: 1, y: 0, duration: 0.06, ease: 'power2.out' }, 0.82)
+        .to('#sub-3', { opacity: 1,       duration: 0.05                     }, 0.85);
+
+      // Background extraction (frames 1 → end)
+      for (let i = 1; i < count; i++) {
+        vid.currentTime = (i / (count - 1)) * dur;
+        await new Promise(r => vid.addEventListener('seeked', r, { once: true }));
+        offCtx.drawImage(vid, 0, 0, off.width, off.height);
+        frames[i] = await createImageBitmap(off);
+        bgLoadBar.style.width = ((i + 1) / count * 100) + '%';
+      }
+      bgLoadBar.classList.add('done');
+      document.body.removeChild(vid);
+    })();
+
+    // ── Navbar scroll effect ──────────────────
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+      navbar.classList.toggle('scrolled', window.scrollY > 40);
+    }, { passive: true });
+
+    // ── Mobile menu ───────────────────────────
+    const hamburger = document.getElementById('hamburger');
+    const navLinks  = document.querySelector('.nav-links');
+
+    hamburger.addEventListener('click', () => {
+      const isOpen = navLinks.classList.toggle('open');
+      navbar.classList.toggle('menu-open', isOpen);
+      hamburger.setAttribute('aria-expanded', isOpen);
+      hamburger.setAttribute('aria-label', isOpen ? 'Close menu' : 'Open menu');
+      document.body.style.overflow = isOpen ? 'hidden' : '';
+    });
+
+    function closeMenu() {
+      navLinks.classList.remove('open');
+      navbar.classList.remove('menu-open');
+      hamburger.setAttribute('aria-expanded', 'false');
+      hamburger.setAttribute('aria-label', 'Open menu');
+      document.body.style.overflow = '';
+    }
+
+    navLinks.querySelectorAll('a').forEach(l => l.addEventListener('click', closeMenu));
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMenu(); });
+
+    // ── Focus name field on contact click ─────
+    document.querySelectorAll('a[href="#contact"]').forEach(link => {
+      link.addEventListener('click', () => {
+        setTimeout(() => document.getElementById('name')?.focus(), 800);
+      });
+    });
+
+    // ── Scroll reveal ─────────────────────────
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('is-visible');
+          revealObserver.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.08 });
+    document.querySelectorAll('.fade-up').forEach(el => revealObserver.observe(el));
+
+    // ── Contact form ──────────────────────────
+    document.getElementById('contact-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const btn = e.target.querySelector('button[type="submit"]');
+      const orig = btn.textContent;
+      btn.textContent = 'Sending...';
+      btn.disabled = true;
+      setTimeout(() => {
+        btn.textContent = 'Sent.';
+        btn.classList.add('btn-success');
+        setTimeout(() => {
+          btn.textContent = orig;
+          btn.disabled = false;
+          btn.classList.remove('btn-success');
+          e.target.reset();
+        }, 3200);
+      }, 800);
+    });
+  </script>
 </body>
 </html>
